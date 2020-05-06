@@ -1,0 +1,508 @@
+##################################
+#  ____________________________
+# (   _________________________)
+#  ) (__  _  _  _    _
+# (   __)( \/ )( \/\/ )/\/\
+#  ) (    \  /  \    //    \
+# (___)    \/    \/\/(_/\/\_) 2.6
+#
+#
+#  This is the default configuration file shipped with fvwm.
+#
+#  This config file is organized as follows:
+#
+#    1: Functions
+#    2: Styles
+#    3: Colorsets
+#    4: Menus
+#    5: Bindings
+#    6: Decor
+#    7: Modules
+#
+#################################
+
+#|||||||||||||||||||||||||||||||||||#
+# Area para setar funcoçes externas #
+#|||||||||||||||||||||||||||||||||||#
+
+SetEnv icons $[HOME]/.fvwm/icons  # Localizaçao dos icones da barra de janelas
+
+InfoStoreAdd terminal xfce4-terminal
+
+###########
+# 1: Functions
+#
+# Fvwm can use custom functions for various tasks.
+# The syntax for defining a function named FunctionName is:
+#
+#   DestroyFunc FunctionName
+#   AddToFunc FunctionName
+#   + I [Action to do Immediately]
+#   + C [Action to do on a Mouse Click]
+#   + D [Action to do on a Mouse Double Click]
+#   + H [Action to do on a Mouse Hold]
+#   + M [Action to do on a Mouse Motion]
+###########
+
+# Start Function
+#
+# The start function is run right after fvwm is done reading
+# the config file. This function run after each restart
+# so using Test (Init) or Test (Restart) can further control
+# actions that are run during the first time run (Init) or
+# actions that are run after a restart.
+DestroyFunc StartFunction
+AddToFunc   StartFunction
++ I Test (Init, f $[FVWM_USERDIR]/.BGdefault) \
+    Exec exec fvwm-root $[FVWM_USERDIR]/.BGdefault
++ I TestRc (NoMatch) Exec exec fvwm-root \
+    $[FVWM_DATADIR]/default-config/images/background/bg1.png
++ I Test (Init) Module FvwmBanner
++ I Module FvwmButtons RightPanel
++ I Module FvwmEvent EventNewDesk
+
+# Mouse Bindings Functions
+DestroyFunc RaiseMoveX
+AddToFunc RaiseMoveX
++ I Raise
++ M $0
++ D $1
+
+DestroyFunc RaiseMove
+AddToFunc RaiseMove
++ I Raise
++ M $0
+
+DestroyFunc MoveToCurrent
+AddToFunc MoveToCurrent
++ I ThisWindow MoveToPage
++ I ThisWindow MoveToDesk
+
+# Function: ViewManPage $0
+#
+# This function loads the man page $0 in an terminal
+# and is used with the help menu.
+DestroyFunc ViewManPage
+AddToFunc   ViewManPage
++ I Exec exec $[infostore.terminal] -g 80x40 \
+  -n "Manual Page - $0" -T "Manual Page - $0" -e man "$0"
+
+# Function: SetBG $0
+#
+# SetBG is used with the background menu to set the background
+# image and configure it to be loaded the next time fvwm is run.
+# Note, fvwm-root can't use .jpeg or resize images. Use something
+# like display, feh, etc.
+DestroyFunc SetBG
+AddToFunc   SetBG
++ I Test (f $[FVWM_USERDIR]/images/background/$0) \
+    Exec exec fvwm-root $[FVWM_USERDIR]/images/background/$0
++ I TestRc (Match) Exec exec ln -fs images/background/$0 \
+    $[FVWM_USERDIR]/.BGdefault
++ I TestRc (Match) Break
++ I Test (!f $[FVWM_DATADIR]/default-config/images/background/$0) Break
++ I Exec exec fvwm-root $[FVWM_DATADIR]/default-config/images/background/$0
++ I Exec exec ln -fs $[FVWM_DATADIR]/default-config/images/background/$0 \
+    $[FVWM_USERDIR]/.BGdefault
+
+
+# Function: IconManClick
+#
+# This function is run from FvwmIconMan when the button is clicked.
+DestroyFunc IconManClick
+AddToFunc   IconManClick
++ I ThisWindow (Raised, !Shaded, !Iconic, CurrentPage) Iconify
++ I TestRc (Match) Break
++ I ThisWindow WindowShade off
++ I ThisWindow Iconify off
++ I ThisWindow Raise
++ I ThisWindow (AcceptsFocus) FlipFocus
+
+# Function: ToggleTitle
+#
+# This function will toggle if fvwm shows the TitleBar.
+DestroyFunc ToggleTitle
+AddToFunc   ToggleTitle
++ I ThisWindow (State 1) WindowStyle Title
++ I TestRc (Match) State 1 False
++ I TestRc (Match) Break
++ I WindowStyle !Title
++ I State 1 True
+
+# Function: ChangeDesk
+#
+# This function is called by FvwmEvent every time the Desk is changed.
+DestroyFunc ChangeDesk
+AddToFunc   ChangeDesk
++ I SendToModule FvwmButtons ChangeButton desk0 Colorset 10
++ I SendToModule FvwmButtons ChangeButton desk1 Colorset 10
++ I SendToModule FvwmButtons ChangeButton desk2 Colorset 10
++ I SendToModule FvwmButtons ChangeButton desk3 Colorset 10
++ I SendToModule FvwmButtons ChangeButton desk$0 Colorset 11
+
+
+
+
+
+DesktopName 0 Main
+DesktopName 1 Desk1
+DesktopName 2 Desk2
+DesktopName 3 Desk3
+DesktopSize 2x2
+
+# EdgeScroll will move the view port between the Pages when the mouse
+# moves to the edge of the screen. This set the amount of distance to
+# scroll at 100% (full page) and the EdgeResistance which is a timer
+# for how long the mouse as at the edge before it scrolls.
+#
+# Set EdgeScroll 0 0 and/or EdgeResistance -1 to disable.
+EdgeScroll 100 100
+EdgeResistance 450
+EdgeThickness 1
+Style * EdgeMoveDelay 350, EdgeMoveResistance 350
+
+# Distancia das bordas das janelas para as bordas da tela 
+#             [left] [right] [top] [bottom]
+EwmhBaseStruts  50      5     20      215
+
+# This sets the ClickTime and MoveThreshold used to determine
+# Double Clicks, Hold and Move for the mouse.
+ClickTime 250
+MoveThreshold 3
+
+# Sets the focus style to SloppyFocus and a mouse click
+# in a window will Raise it.
+Style * SloppyFocus, MouseFocusClickRaises
+
+# Default Font
+DefaultFont "xft:Sans:Bold:size=8:antialias=True"
+
+# Window Placement
+Style * MinOverlapPlacement, GrabFocusOff, !UsePPosition
+
+# Sets all windows to OpaqueMove (vs a wired frame) and  windows will
+# snap to each other and the edge of the screen.
+OpaqueMoveSize unlimited
+Style * ResizeOpaque, SnapAttraction 15 SameType ScreenAll, SnapGrid
+
+# Transient Windows (such as open file windows)
+Style * DecorateTransient, StackTransientParent
+Style * !FPGrabFocusTransient, FPReleaseFocusTransient
+
+# WindowShade
+Style * WindowShadeScrolls, WindowShadeSteps 60
+
+# Ignore Numlock and other modifiers for bindings
+# See http://fvwm.org/documentation/faq/#why-do-numlock-capslock-and-scrolllock-interfere-with-clicktofocus-andor-my-mouse-bindings
+IgnoreModifiers L25
+
+## Decoration Styles
+Style * TitleAtLeft
+Style * ResizeHintOverride
+Style * BorderWidth 0, HandleWidth 0# Largura da bordas das janelas 
+Style * Colorset 1, HilightColorset 2
+Style * BorderColorset 3, HilightBorderColorset 4 # Cores das bordas das janelas
+
+# Disable Icons from appearing on desktop.
+# Comment this out or use Style * Icon to get the icons back.
+Style * !Icon
+
+# Window Specific Styles
+Style RightPanel !Title, !Borders, !Handles, Sticky, \
+                 WindowListSkip, NeverFocus
+Style ConfirmQuit !Title, PositionPlacement Center, WindowListSkip, Layer 6
+Style FvwmIdent WindowListSkip
+
+#||||||||||||||||||||||||#
+# Area das cores normais #
+#||||||||||||||||||||||||#
+
+
+## Common Colorset
+# Default
+Colorset 0 fg #ff0000, bg #ff0000, hi, sh, Plain, NoShape
+# janela ativa
+Colorset 1 fg #ffffff, bg #000000, hi, sh #ff0000, Plain, NoShape
+# janela inativa
+Colorset 2 fg #ffffff, bg #121212, hi #121212, sh #121212, Plain, NoShape
+# Inactive windows borders
+Colorset 3 fg #111111, bg #121212, hi #121212, sh #121212, Plain, NoShape
+# Active windows borders
+Colorset 4 fg #141715, bg #141715, hi #141715, sh #141715, Plain, NoShape
+# Menu inactive item
+Colorset 5 fg #ff0000, bg #ff0000, hi #ff0000, sh #ff0000, Plain, NoShape
+# Menu active item
+Colorset 6 fg #c6586f, bg #ff0000, hi #ff0000, sh #ffffff, Plain, NoShape
+# Cores do menu
+Colorset 7 fg #ffffff, bg #000000, hi #000000, sh #121212, Plain, NoShape
+# Menu title
+Colorset 14 fg #a1a8b9, bg #131c26, hi #131c26, sh #131c26, Plain, NoShape
+# Reserved
+Colorset 10 fg #a1a8b9, bg #131c26, hi #131c26, sh #131c26, Plain, NoShape
+# Module default
+Colorset 10 fg #a1a8b9, bg #131c26, hi #131c26, sh #131c26, Plain, NoShape
+# Module highlight
+Colorset 11 fg #725f8f, bg #131c26, hi #131c26, sh #131c26, Plain, NoShape
+# Module active buttons (mouse hover)
+Colorset 12 fg #c6586f, bg #131c26, hi, sh, Plain, NoShape
+# Pager active page
+Colorset 13 fg #131c26, bg #1b2736, hi, sh, Plain, NoShape
+# Iconified buttons
+Colorset 14 fg #a1a8b9, bg #131c26, hi #131c26, sh #131c26, Plain, NoShape
+
+## Special Colorset
+# Special black
+Colorset 20 fg #725f8f, bg #725f8f, hi, sh, Plain, NoShape
+# Special red
+Colorset 21 fg #c6586f, bg #c6586f, hi, sh, Plain, NoShape
+# Special green
+Colorset 22 fg #a18174, bg #a18174, hi, sh, Plain, NoShape
+# Special yellow
+Colorset 23 fg #c67d6f, bg #c67d6f, hi, sh, Plain, NoShape
+# Special blue
+Colorset 24 fg #a15894, bg #a15894, hi, sh, Plain, NoShape
+# Special magenta
+Colorset 25 fg #c65894, bg #c65894, hi, sh, Plain, NoShape
+# Special cyan
+Colorset 26 fg #977da1, bg #977da1, hi, sh, Plain, NoShape
+# Special white
+Colorset 27 fg #95948f, bg #95948f, hi, sh, Plain, NoShape
+# Special lightblack
+Colorset 28 fg #b18bbf, bg #b18bbf, hi, sh, Plain, NoShape
+# Special lightred
+Colorset 29 fg #c17286, bg #c17286, hi, sh, Plain, NoShape
+# Special lightgreen
+Colorset 30 fg #a29395, bg #a29395, hi, sh, Plain, NoShape
+# Special lightyellow
+Colorset 31 fg #dba5a8, bg #dba5a8, hi, sh, Plain, NoShape
+# Special lighblue
+Colorset 32 fg #be8ac9, bg #be8ac9, hi, sh, Plain, NoShape
+# Special lightmagenta
+Colorset 33 fg #db8ac9, bg #db8ac9, hi, sh, Plain, NoShape
+# Special lightcyan
+Colorset 34 fg #baa8c9, bg #baa8c9, hi, sh, Plain, NoShape
+# Special lightwhite
+Colorset 35 fg #ead1be, bg #ead1be, hi, sh, Plain, NoShape
+
+#|||||||||||||||||||||||||||||#
+# Area de estilo transparente #
+#|||||||||||||||||||||||||||||#
+
+  Colorset 41 RootTransparent buffer, fg white, bg average, \
+     Tint #080808 90, bgTint black 15  # tint is optional
+   Colorset 42 RootTransparent buffer, fg white, bg average, \
+     Tint #080808  90, bgTint red  15  # tint is optional
+
+AddTitleStyle Colorset NN PP
+
+   Style * Colorset 41, HilightColorset 42  # to use fg and bg
+   BorderStyle Inactive Colorset 42 -- flat
+   BorderStyle Active   Colorset 41 -- flat
+   TitleStyle AllInactive Colorset 42 -- flat
+   TitleStyle AllActive   Colorset 41 -- flat
+   ButtonStyle All -- UseTitleStyle flat
+
+
+#######
+# 4: Menus
+###########
+MenuStyle * MenuColorset 5, ActiveColorset 6, GreyedColorset 7, TitleColorset 8
+MenuStyle * Hilight3DOff, HilightBack, HilightTitleBack, SeparatorsLong
+MenuStyle * TrianglesSolid, TrianglesUseFore
+MenuStyle * ItemFormat "%|%3.1i%5.3l%5.3>%|"
+MenuStyle * Font "xft:Sans:Bold:size=8:antialias=True"
+
+# Root Menu
+#
+# The root menu will PopUp with a click in the root
+# window or using alt-f1 (or menu).
+DestroyMenu MenuFvwmRoot
+AddToMenu   MenuFvwmRoot "Fvwm" Title
++ "&Programs%icons/programs.png%" Popup MenuPrograms
++ "XDG &Menu%icons/apps.png%" Popup XDGMenu
++ "&XTerm%icons/terminal.png%" Exec exec $[infostore.terminal]
++ "" Nop
++ "Fvwm&Console%icons/terminal.png%" Module FvwmConsole -terminal $[infostore.terminal]
++ "&Wallpapers%icons/wallpaper.png%" Popup BGMenu
++ "M&an Pages%icons/help.png%" Popup MenuFvwmManPages
++ "Copy Config%icons/conf.png%" FvwmScript FvwmScript-ConfirmCopyConfig
++ "" Nop
++ "Re&fresh%icons/refresh.png%" Refresh
++ "&Restart%icons/restart.png%" Restart
++ "&Quit%icons/quit.png%" Module FvwmScript FvwmScript-ConfirmQuit
+
+# Generate XDGMenu
+PipeRead "fvwm-menu-desktop -e"
+
+# Programs Menu
+#
+# This test for some common programs and adds them to the menu.
+# When adding programs you don't need to use the Test (x foo)
+# lines as this is only to help make this menu portable.
+DestroyMenu MenuPrograms
+AddToMenu   MenuPrograms "Programs" Title
+Test (x google-chrome-stable) + "Chrome" Exec exec google-chrome-stable
+Test (x google-chrome-stable) + "FaceBook" Exec exec google-chrome-stable facebook.com
+Test (x google-chrome-stable) + "YouTube"  Exec exec google-chrome-stable youtube.com
++ "" Nop
+Test (x thunar) + "Thunar" Exec exec thunar
+Test (x xfce4-terminal) + "Terminal" Exec exec xfce4-terminal
+Test (x subl) + "Sublime" Exec exec subl
+
+
+# Background Menu
+#
+# Backgrounds are located in ~/.fvwm/images/background/
+# Menu icons are located in ~/.fvwm/images/bgicons/
+DestroyMenu BGMenu
+AddToMenu   BGMenu "Wallpapers" Title
++ "Floral%bgicons/bg1.png%" SetBG bg1.png
++ "Circles%bgicons/bg2.png%" SetBG bg2.png
++ "Space%bgicons/bg3.png%" SetBG bg3.png
+
+# Window Operations Menus
+DestroyMenu MenuWindowOps
+AddToMenu   MenuWindowOps
++ "Move"      Move
++ "Resize"    Resize
++ "Iconify"   Iconify
++ "Maximize"  Maximize
++ "Shade"     WindowShade
++ "Stick"     Stick
++ "" Nop
++ "Close"     Close
++ "More..."   Menu MenuWindowOpsLong This 0 0
+
+DestroyMenu MenuWindowOpsLong
+AddToMenu   MenuWindowOpsLong
++ "Move"                Move
++ "Resize"              Resize
++ "(De)Iconify"         Iconify
++ "(Un)Maximize"        Maximize
++ "(Un)Shade"           WindowShade
++ "(Un)Sticky"		Stick
++ "(No)TitleBar"	Pick (CirculateHit) ToggleTitle
++ "Send To"             Popup MenuSendTo
++ "" Nop
++ "Close"               Close
++ "Destroy"             Destroy
++ "" Nop
++ "Raise"		Raise
++ "Lower"		Lower
++ "" Nop
++ "StaysOnTop"          Pick (CirculateHit) Layer 0 6
++ "StaysPut"            Pick (CirculateHit) Layer 0 4
++ "StaysOnBottom"       Pick (CirculateHit) Layer 0 2
++ "" Nop
++ "Identify"            Module FvwmIdent
+
+DestroyMenu MenuIconOps
+AddToMenu   MenuIconOps
++ "(De)Iconify"         Iconify
++ "(Un)Maximize"        Maximize
++ "(Un)Shade"           WindowShade
++ "(Un)Sticky"		Stick
++ "(No)TitleBar"	Pick (CirculateHit) ToggleTitle
++ "Send To"             Popup MenuSendTo
++ "" Nop
++ "Close"               Close
++ "Destroy"             Destroy
++ "" Nop
++ "Raise"		Raise
++ "Lower"		Lower
++ "" Nop
++ "StaysOnTop"          Pick (CirculateHit) Layer 0 6
++ "StaysPut"            Pick (CirculateHit) Layer 0 4
++ "StaysOnBottom"       Pick (CirculateHit) Layer 0 2
++ "" Nop
++ "Identify"            Module FvwmIdent
+
+DestroyMenu MenuSendTo
+AddToMenu MenuSendTo
++ "Current" MoveToCurrent
++ "Page" PopUp MenuSendToPage
++ "Desk" PopUp MenuSendToDesk
+
+DestroyMenu MenuSendToDesk
+AddToMenu   MenuSendToDesk
++ "Desk 0"	MoveToDesk 0 0
++ "Desk 1"	MoveToDesk 0 1
++ "Desk 2"	MoveToDesk 0 2
++ "Desk 3"	MoveToDesk 0 3
+
+DestroyMenu MenuSendToPage
+AddToMenu   MenuSendToPage
++ "Page (0,0)"	MoveToPage 0 0
++ "Page (0,1)"	MoveToPage 0 1
++ "Page (1,0)"	MoveToPage 1 0
++ "Page (1,1)"	MoveToPage 1 1
+
+
+# Fvwm Man Pages (Help) Menu
+DestroyMenu MenuFvwmManPages
+AddToMenu   MenuFvwmManPages "Help" Title
++ "fvwm"                ViewManPage fvwm
++ "FvwmAnimate"         ViewManPage FvwmAnimate
++ "FvwmAuto"            ViewManPage FvwmAuto
++ "FvwmBacker"          ViewManPage FvwmBacker
++ "FvwmBanner"          ViewManPage FvwmBanner
++ "FvwmButtons"         ViewManPage FvwmButtons
++ "FvwmCommand"         ViewManPage FvwmCommand
++ "FvwmConsole"         ViewManPage FvwmConsole
++ "FvwmEvent"           ViewManPage FvwmEvent
++ "FvwmForm"            ViewManPage FvwmForm
++ "FvwmIconMan"         ViewManPage FvwmIconMan
++ "FvwmIdent"           ViewManPage FvwmIdent
++ "FvwmPager"           ViewManPage FvwmPager
++ "FvwmPerl"            ViewManPage FvwmPerl
++ "FvwmProxy"           ViewManPage FvwmProxy
++ "FvwmRearrange"       ViewManPage FvwmRearrange
++ "FvwmScript"          ViewManPage FvwmScript
++ "" Nop
++ "fvwm-root"	        ViewManPage fvwm-root
++ "fvwm-menu-desktop"   ViewManPage fvwm-menu-desktop
++ "fvwm-menu-directory" ViewManPage fvwm-menu-directory
++ "fvwm-menu-headlines" ViewManPage fvwm-menu-headlines
++ "fvwm-menu-xlock"     ViewManPage fvwm-menu-xlock
++ "fvwm-config"         ViewManPage fvwm-config
+
+
+# Silent supresses any errors (such as keyboards with no Menu key).
+Silent Key F1 A M Menu MenuFvwmRoot
+Silent Key Menu A A Menu MenuFvwmRoot
+Silent Key Tab A M WindowList Root c c NoDeskSort, SelectOnRelease Meta_L
+Silent Key F1 A C GotoDesk 0 0
+Silent Key F2 A C GotoDesk 0 1
+Silent Key F3 A C GotoDesk 0 2
+Silent Key F4 A C GotoDesk 0 3
+Silent Key Super_R A A Exec exec $[infostore.terminal]
+
+# Buttons Locations 1 3 5 7 9 T T T T T 0 8 6 4 2
+# 2 >> Close, 4 >> Maximize, 6 >> Minimize, 1 >> Window Menu
+
+TitleStyle Centered Height 30 -- Flat
+
+ButtonStyle Reset
+ButtonStyle All -- Flat
+ButtonStyle All -- UseTitleStyle
+AddButtonStyle All Vector 2 1x2@4 1x1@4
+
+AddButtonStyle 2 \
+	ActiveUp (Pixmap $[icons]/close.svg -- Flat) \
+	ActiveDown (Pixmap $[icons]/close.png -- Flat) \
+	Inactive (Pixmap $[icons]/close.png -- Flat)
+
+#AddButtonStyle 4 \
+#	ActiveUp (Pixmap $[icons]/maximize.svg -- Flat) \
+#	ActiveDown (Pixmap $[icons]/maximize.png -- Flat) \
+#	Inactive (Pixmap $[icons]/maximize.png -- Flat)
+
+#AddButtonStyle 6 \
+#	ActiveUp (Pixmap $[icons]/iconify.png -- Flat) \
+#	ActiveDown (Pixmap $[icons]/iconify.png -- Flat) \
+#	Inactive (Pixmap $[icons]/iconify.png -- Flat)
+
+ AddButtonStyle 1 \
+	ActiveUp (Pixmap $[icons]/min.svg -- Flat) \
+	ActiveDown (Pixmap $[icons]/min.svg -- Flat) \
+  Inactive (Pixmap $[icons]/min.svg -- Flat)

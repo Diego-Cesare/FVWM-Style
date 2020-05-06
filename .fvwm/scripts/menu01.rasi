@@ -1,0 +1,114 @@
+@import "arc-theme.rasi"
+
+/* ########### */
+
+* {
+  /* General */
+  text-font:                            "Ubuntu Mono 12";
+  icon-font:                            "Font Awesome 5 Brands Regular 35";
+  icon-font-small:                      "Font Awesome 5 Brands Regular 22";
+
+  option-6-listview-spacing:            10px;
+
+  menu-window-padding:                   5px 15px;
+  menu-inputbar-margin:                  10px 0px;
+  menu-prompt-padding:                   15px 20px 10px 30px;
+  menu-prompt-margin:                    0px 0px 0px -2px;
+  menu-element-border:                   1px;
+  menu-element-padding:                  8px 30px 20px 30px;
+}
+
+/* ########### */
+
+#window {
+  width: 20.5%;
+  height: 20%;
+}
+
+/* ########### */
+
+* {
+  background-color: #111111;
+  text-color: #ffffff;
+  font: @icon-font;
+}
+
+#horibox {
+  children: [ listview ];
+}
+#listview {
+  layout: horizontal;
+}
+#element {
+  padding: @option-element-padding;
+  background-color: @background-light;
+}
+#element.selected {
+  background-color: #00ffff;
+  text-color: #1c1c1c;
+}
+
+/* ########### */
+
+* {
+  font: @text-font;
+}
+#window {
+  padding: @menu-window-padding;
+  children: [ inputbar, horibox ];
+}
+#inputbar {
+  children: [ textbox-prompt-colon, prompt ];
+  margin: @menu-inputbar-margin;
+}
+prompt,
+textbox-prompt-colon {
+  padding: @menu-prompt-padding;
+  border: 1px;
+  border-color: #00ffff;
+}
+#prompt {
+  margin: @menu-prompt-margin;
+  background-color: @background-light;
+  text-color: #ffffff;
+}
+#textbox-prompt-colon {
+  expand: false;
+  str: "Power";
+  background-color: @accent;
+  text-color: @background;
+}
+#horibox {
+  padding: 0px;
+}
+#listview {
+  spacing: @option-6-listview-spacing;
+  lines: 6;
+}
+#element {
+  font: @icon-font;
+  border: @menu-element-border;
+  padding: @menu-element-padding;
+  border-color: @background-light;
+}
+#element.selected {
+  border-color: @accent;
+}
+element.active,
+element.selected.urgent {
+  background-color: @on;
+  text-color: @background;
+  border-color: @on;
+}
+element.selected.urgent {
+  border-color: @accent;
+}
+element.urgent,
+element.selected.active {
+  background-color: @off;
+  text-color: @background;
+  border-color: @off;
+}
+element.selected.active {
+  border-color: @accent;
+}

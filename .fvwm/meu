@@ -1,0 +1,499 @@
+
+#|||||||||||||||||||||||||||||||||||#
+# Area para setar funcoçes externas #
+#|||||||||||||||||||||||||||||||||||#
+
+SetEnv icons $[HOME]/.fvwm/icons  # Localizaçao dos icones da barra de janelas
+
+#||||||||||||||||||||||||||||||||||||||||||||||||||||||#
+# Area para por programas que iniciarao com o sistemas #
+#||||||||||||||||||||||||||||||||||||||||||||||||||||||#
+
+DestroyFunc StartFunction
+AddToFunc   StartFunction
+
++ I Exec exec sh .fehbg # Plano de fundo da area de trabalho
++ I Exec exec setxkbmap -model abnt2 -layout br -variant abnt2 & # Teclado para portugues do Brasil
+
+DestroyFunc InitFunction
+AddToFunc InitFunction
+
++ I Exec exec picom &
++ I Exec exec dunst &
++ I Exec exec tint2 &
++ I Exec exec volumeicon &
++ I Exec exec nm-applet &
++ I Exec exec polybar -r mybar
++ I Exec exec sh .fehbg
++ I Exec exec setxkbmap -model abnt2 -layout br -variant abnt2 &
+
+#||||||||||||||||||||||||||||||||||||||||||||||||#
+# Area para mudanças de configuraçoes do sistema #
+#||||||||||||||||||||||||||||||||||||||||||||||||#
+
+EdgeScroll 0 0 # Anula mudanças de area de trabalho com o mouse nas bordas da tela
+
+#||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||#
+# Esta area correpnde por movimentar as janelas abertas, com as  #
+# teclas do teclado "Super + Setas dierita/esquerda", movem as   #
+# janelas para a direita e para esquerda.                        #
+# As teclas "Super + cima/baixo", almentam e diminuem o tamanho  #
+# das janelas.                                                   #
+#||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||#
+
+# Control + Alt + Left/Right muda a area de trabalho
+
+Key Left A CM GotoPage -1p +0p
+Key Right A CM GotoPage +1p +0p
+
+# Window snapping
+
+Key Left A 4 SnapLeft
+Key Right A 4 SnapRight
+Key Up A 4 SnapHalf
+Key Down A 4 SnapQuarter
+Key n A 4 SnapTiny
+# Move to the edge of the screen
+Key Left A C4 Move 0 w+0
+Key Right A C4 Move -0 w+0
+Key Up A C4 Move w+0 0
+Key Down A C4 Move w+0 -0
+# Move to the center of the screen
+Key a A 4 Move 50-50w 50-50w
+# Free move using mouse
+Key m A M Move
+# Free resize using mouse
+Key r A M Resize
+
+## To Create a Thumbnail on Minimize
+# Call the script to create a thumbnail using ImageMagick & xwd
+DestroyFunc Thumbnail
+AddToFunc Thumbnail
++ I ThisWindow (Shaded) WindowShade
++ I PipeRead 'bash $[scripts]/crthumb "$[w.id]" "$[cache]"'
+# Restore the window
+DestroyFunc DeThumbnail
+AddToFunc DeThumbnail
++ I PipeRead 'bash $[scripts]/dethumb "$[w.id]" "$[cache]"'
+*FvwmEvent: deiconify DeThumbnail
+
+## To Toggle The Titlebar
+DestroyFunc ToggleTitle
+AddToFunc   ToggleTitle
++ I ThisWindow (State 1) WindowStyle Title
++ I TestRc (Match) State 1 False
++ I TestRc (Match) Break
++ I WindowStyle !Title
++ I State 1 True
+
+## Window Snapping
+# Snap left
+DestroyFunc SnapLeft
+AddToFunc SnapLeft
++ I Move 0 0
++ I Maximize True 50 100
++ I Raise
+# Snap right
+DestroyFunc SnapRight
+AddToFunc SnapRight
++ I Maximize True 50 100
++ I Move -0 0
++ I Raise
+# Zoom unmaximize large
+DestroyFunc SnapHalf
+AddToFunc SnapHalf
++ I Maximize True 75 75
++ I Move 50-50w 50-50w
++ I Raise
+# Zoom unmaximize small
+DestroyFunc SnapQuarter
+AddToFunc SnapQuarter
++ I Maximize True 50 50
++ I Move 50-50w 50-50w
++ I Raise
+# Zoom unmaximize tiny
+DestroyFunc SnapTiny
+AddToFunc SnapTiny
++ I Maximize True 36 28
++ I Move 50-50w 50-50w
++ I Raise
+
+## Raising Window
+DestroyFunc RaiseMoveX
+AddToFunc RaiseMoveX
++ I Raise
++ M $0
++ D $1
+DestroyFunc RaiseMove
+AddToFunc RaiseMove
++ I Raise
++ M $0
+
+#|||||||||||||||||||#
+# Atalhos Do Teclado#
+#|||||||||||||||||||#
+
+IgnoreModifiers L25 # Ignora funçoes como Numlock e CapsLook
+
+Key Print A 4 Exec exec scrot 'My_i3-gaps_%a-%d%b%y_%H.%M.png' -e 'viewnior ~/$f' # Faz um screenshot da tela
+Key d A 4 Exec exec sh /home/diego/.config/i3/dmenu.sh # Executa o dmenu
+
+# Abrir aplicativos
+Key Return A 4 Exec xfce4-terminal
+Key c A 4S Exec google-chrome-stable
+Key f A 4S Exec google-chrome-stable faceboock.com
+Key y A 4S Exec google-chrome-stable youtube.com
+Key t A 4S Exec thunar
+Key s A 4S Exec subl
+
+# Volume 
+Key XF86AudioRaiseVolume A A Exec amixer -q set Master 5%+
+Key XF86AudioLowerVolume A A Exec amixer -q set Master 5%-
+Key XF86AudioMute A A Exec amixer set Master toggle
+
+# Checar a data e a hora
+Key i A 4 Exec notify-send "$(LANG=pt_BR.UTF-8 LC_TIME=pt_BR.UTF-8 date +'%H:%M')" \
+"$(LANG=pt_BR.UTF-8 LC_TIME=pt_BR.UTF-8 date +'%A %-d %B %Y')"
+
+# Mudanças de areas de trabalho
+# Close, maximize, and minimize
+Key q WT 4 Close
+Key f WT 4 Maximize
+
+# Super + 1-5 muda area de trabalho dentro do primeiro plano
+
+Key 1 A 4 GotoPage 0 0
+Key 2 A 4 GotoPage 1 0
+Key 3 A 4 GotoPage 2 0
+Key 4 A 4 GotoPage 3 0
+Key 5 A 4 GotoPage 0 1
+
+# Super + 6-9 muda area de trabalho dentro do segundo plano
+
+Key 6 A 4 GotoPage 1 1
+Key 7 A 4 GotoPage 2 1
+Key 8 A 4 GotoPage 3 1
+Key 9 A 4 GotoPage 0 2
+
+# Mover janelas abertas para outras areas de tabalho
+
+# Super + Shift + 1-4 muda a janela para outra area de trabalho
+Key 1 A 4S MovetoPage 0 0
+Key 2 A 4S MovetoPage 1 0
+Key 3 A 4S MovetoPage 2 0
+Key 4 A 4S MovetoPage 3 0
+
+###==================###
+### Atalhos Do Mouse ###
+###==================###
+
+
+## Double Click Delay
+ClickTime 250
+MoveThreshold 3
+
+## Focus on Hover Instead of ClickToFocus
+#Style * SloppyFocus, MouseFocusClickRaises
+Style * SloppyFocus, UseTransientPPosition, PositionPlacement UnderMouse
+
+## Titlebar Buttons
+Mouse 1 1 A Menu MenuWindowOps Delete
+Mouse 1 2 A Close
+Mouse 1 4 A Maximizer     
+Mouse 1 6 A Thumbnail
+
+## Titlebar Itself
+Mouse 1	T A RaiseMoveX Move Maximize
+Mouse 1	FS A RaiseMove Resize
+Mouse 4	T A WindowShade True
+Mouse 5	T A WindowShade False
+Mouse 3	T A Menu MenuWindowOps
+
+## Rootmenu on The Desktop
+Mouse 1	R A Menu MenuFvwmRoot
+Mouse 2	R A WindowList
+#Mouse 3	R A Menu MenuWindowOpsLong
+
+## On minimized windows
+Mouse 1 I A Iconify off
+Mouse 3 I A Menu MenuIconOps
+
+#||||||||||||||||#
+# Area dos menus #
+#||||||||||||||||#
+      
+# Estilo dos menus
+
+MenuStyle * MenuColorset 2, ActiveColorset 1, GreyedColorset 7, TitleColorset 7
+MenuStyle * Hilight3DOff, HilightBack, HilightTitleBack, SeparatorsLong
+MenuStyle * TrianglesSolid, TrianglesUseFore
+MenuStyle * ItemFormat "%|%4.2i%5.3l%5.3>%|"
+MenuStyle * Font "xft:Font Awesome 5 Brands:Bold:size=13:antialias=True"
+
+# Menu
+
+DestroyMenu MenuFvwmRoot
+AddToMenu   MenuFvwmRoot "Menu" Title
++ "   Terminal" Exec exec xfce4-terminal/terminal.png%
++ "   Chrome" Exec exec google-chrome-stable
++ "   FaceBoock" Exec exec google-chrome-stable faceboock.com
++ "   YouTube" Exec exec google-chrome-stable youtube.com
++ "   Thunar" Exec exec thunar
++ "   Sublime" Exec exec subl
++ "" Nop
++ "     Restart" Restart
++ "     Sair" Module FvwmScript FvwmScript-ConfirmQuit
+
+## Menu de janelas "Bola amarela no canto superio direito da barra"
+
+DestroyMenu MenuWindowOps
+AddToMenu   MenuWindowOps
+
++ "Send To" Popup MenuSendTo
++ "Move" Move
++ "Resize" Resize
++ "Iconify" Iconify
++ "Maximize" Maximize
++ "Shade" WindowShade
++ "Stick" Stick
++ "" Nop
++ "Close" Close
+#+ "More..." Menu MenuWindowOpsLong This 0 0
+
+## Titlebar Right Click >> More
+DestroyMenu MenuWindowOpsLong
+AddToMenu   MenuWindowOpsLong
+
++ "Send To" Popup MenuSendTo
++ "Move" Move
++ "Resize" Resize
++ "(De)Iconify" Iconify
++ "(Un)Maximize" Maximize
++ "(Un)Shade" WindowShade
++ "(Un)Sticky" Stick
++ "(No)TitleBar" Pick (CirculateHit) ToggleTitle
++ "" Nop
++ "Close" Close
++ "Destroy" Destroy
++ "" Nop
++ "Raise" Raise
++ "Lower" Lower
++ "" Nop
++ "StaysOnTop" Pick (CirculateHit) Layer 0 6
++ "StaysPut" Pick (CirculateHit) Layer 0 4
++ "StaysOnBottom" Pick (CirculateHit) Layer 0 2
++ "" Nop
++ "Identify" Module FvwmIdent
+
+## Right Click on Minimized Window
+DestroyMenu MenuIconOps
+AddToMenu   MenuIconOps
++ "(De)Iconify" Iconify
++ "(Un)Maximize" Maximize
++ "(Un)Shade" WindowShade
++ "(Un)Sticky" Stick
++ "(No)TitleBar" Pick (CirculateHit) ToggleTitle
++ "" Nop
++ "Close" Close
++ "Destroy" Destroy
++ "" Nop
++ "Raise" Raise
++ "Lower" Lower
++ "" Nop
++ "StaysOnTop" Pick (CirculateHit) Layer 0 6
++ "StaysPut" Pick (CirculateHit) Layer 0 4
++ "StaysOnBottom" Pick (CirculateHit) Layer 0 2
++ "" Nop
++ "Identify" Module FvwmIdent
+
+## Titlebar Right Click >> Send To
+DestroyMenu MenuSendTo
+AddToMenu MenuSendTo
++ " Workspace 1 " MoveToPage 0 0
++ " Workspace 2 " MoveToPage 1 0
++ " Workspace 3 " MoveToPage 2 0
++ " Workspace 4 " MoveToPage 3 0
+
+#||||||||||||||||||||||||#
+# Area das cores normais #
+#||||||||||||||||||||||||#
+
+
+## Common Colorset
+# Default
+Colorset 0 fg #ff0000, bg #ff0000, hi, sh, Plain, NoShape
+# janela ativa
+Colorset 1 fg #ffffff, bg #000000, hi, sh #ff0000, Plain, NoShape
+# janela inativa
+Colorset 2 fg #ffffff, bg #121212, hi #121212, sh #121212, Plain, NoShape
+# Inactive windows borders
+Colorset 3 fg #111111, bg #121212, hi #121212, sh #121212, Plain, NoShape
+# Active windows borders
+Colorset 4 fg #141715, bg #141715, hi #141715, sh #141715, Plain, NoShape
+# Menu inactive item
+Colorset 5 fg #ff0000, bg #ff0000, hi #ff0000, sh #ff0000, Plain, NoShape
+# Menu active item
+Colorset 6 fg #c6586f, bg #ff0000, hi #ff0000, sh #ffffff, Plain, NoShape
+# Cores do menu
+Colorset 7 fg #ffffff, bg #000000, hi #000000, sh #121212, Plain, NoShape
+# Menu title
+Colorset 14 fg #a1a8b9, bg #131c26, hi #131c26, sh #131c26, Plain, NoShape
+# Reserved
+Colorset 10 fg #a1a8b9, bg #131c26, hi #131c26, sh #131c26, Plain, NoShape
+# Module default
+Colorset 10 fg #a1a8b9, bg #131c26, hi #131c26, sh #131c26, Plain, NoShape
+# Module highlight
+Colorset 11 fg #725f8f, bg #131c26, hi #131c26, sh #131c26, Plain, NoShape
+# Module active buttons (mouse hover)
+Colorset 12 fg #c6586f, bg #131c26, hi, sh, Plain, NoShape
+# Pager active page
+Colorset 13 fg #131c26, bg #1b2736, hi, sh, Plain, NoShape
+# Iconified buttons
+Colorset 14 fg #a1a8b9, bg #131c26, hi #131c26, sh #131c26, Plain, NoShape
+
+## Special Colorset
+# Special black
+Colorset 20 fg #725f8f, bg #725f8f, hi, sh, Plain, NoShape
+# Special red
+Colorset 21 fg #c6586f, bg #c6586f, hi, sh, Plain, NoShape
+# Special green
+Colorset 22 fg #a18174, bg #a18174, hi, sh, Plain, NoShape
+# Special yellow
+Colorset 23 fg #c67d6f, bg #c67d6f, hi, sh, Plain, NoShape
+# Special blue
+Colorset 24 fg #a15894, bg #a15894, hi, sh, Plain, NoShape
+# Special magenta
+Colorset 25 fg #c65894, bg #c65894, hi, sh, Plain, NoShape
+# Special cyan
+Colorset 26 fg #977da1, bg #977da1, hi, sh, Plain, NoShape
+# Special white
+Colorset 27 fg #95948f, bg #95948f, hi, sh, Plain, NoShape
+# Special lightblack
+Colorset 28 fg #b18bbf, bg #b18bbf, hi, sh, Plain, NoShape
+# Special lightred
+Colorset 29 fg #c17286, bg #c17286, hi, sh, Plain, NoShape
+# Special lightgreen
+Colorset 30 fg #a29395, bg #a29395, hi, sh, Plain, NoShape
+# Special lightyellow
+Colorset 31 fg #dba5a8, bg #dba5a8, hi, sh, Plain, NoShape
+# Special lighblue
+Colorset 32 fg #be8ac9, bg #be8ac9, hi, sh, Plain, NoShape
+# Special lightmagenta
+Colorset 33 fg #db8ac9, bg #db8ac9, hi, sh, Plain, NoShape
+# Special lightcyan
+Colorset 34 fg #baa8c9, bg #baa8c9, hi, sh, Plain, NoShape
+# Special lightwhite
+Colorset 35 fg #ead1be, bg #ead1be, hi, sh, Plain, NoShape
+#|||||||||||||||||||||||||||||#
+# Area de estilo transparente #
+#|||||||||||||||||||||||||||||#
+
+  Colorset 41 RootTransparent buffer, fg white, bg average, \
+     Tint #080808 90, bgTint black 15  # tint is optional
+   Colorset 42 RootTransparent buffer, fg white, bg average, \
+     Tint #080808  90, bgTint red  15  # tint is optional
+
+AddTitleStyle Colorset NN PP
+
+   Style * Colorset 41, HilightColorset 42  # to use fg and bg
+   BorderStyle Inactive Colorset 42 -- flat
+   BorderStyle Active   Colorset 41 -- flat
+   TitleStyle AllInactive Colorset 42 -- flat
+   TitleStyle AllActive   Colorset 41 -- flat
+   ButtonStyle All -- UseTitleStyle flat
+
+#|||||||||||||||||||||||||||||||||#
+# Area de modificaçoes de janelas #
+#|||||||||||||||||||||||||||||||||#
+
+
+DefaultFont "xft:Sans:Regular:size=12:antialias=True"
+
+# EmwhBaseStruts [left] [right] [top] [bottom]
+EwmhBaseStruts 5 5 30 50 # Distacias das bordas da janelas entra as bordas da tela
+
+## Place It On Center instead of MinOverlapPlacement
+Style * PositionPlacement Left
+Style * GrabFocusOff, !UsePPosition
+
+# Sets all windows to OpaqueMove (vs a wired frame) and  windows will
+# snap to each other and the edge of the screen.
+OpaqueMoveSize unlimited
+Style * ResizeOpaque, SnapAttraction 15 SameType ScreenAll, SnapGrid
+
+
+## Transient Windows, Such as Open File Windows
+Style * DecorateTransient, StackTransientParent
+Style * !FPGrabFocusTransient, FPReleaseFocusTransient
+
+## Window Shade / Roll Up
+Style * WindowShadeScrolls, WindowShadeSteps 30
+
+## Disable Icons from Appearing on Desktop
+Style * !Icon
+
+## Decoration Styles
+Style * TitleAtLeft
+Style * ResizeHintOverride
+Style * BorderWidth 0, HandleWidth 0# Largura da bordas das janelas 
+Style * Colorset 1, HilightColorset 2
+Style * BorderColorset 3, HilightBorderColorset 4 # Cores das bordas das janelas
+
+
+## Window Specific Styles
+Style ConfirmQuit !Title, PositionPlacement Center, WindowListSkip, Layer 6 \
+
+Style tint2 !Title, PositionPlacement Right, !Borders, !Handles, Sticky, \
+                 WindowListSkip, NeverFocus, Layer 6
+
+Style polybar -r mybar !Title, PositionPlacement Right, !Borders, !Handles, Sticky, \
+                 WindowListSkip, NeverFocus, Layer 6
+
+
+##       __                      __  _         
+##   ___/ /__ _______  _______ _/ /_(_)__  ___ 
+##  / _  / -_) __/ _ \/ __/ _ `/ __/ / _ \/ _ \
+##  \_,_/\__/\__/\___/_/  \_,_/\__/_/\___/_//_/
+##
+
+# Buttons Locations 1 3 5 7 9 T T T T T 0 8 6 4 2
+# 2 >> Close, 4 >> Maximize, 6 >> Minimize, 1 >> Window Menu
+
+TitleStyle Centered Height 30 -- Flat
+
+ButtonStyle Reset
+ButtonStyle All -- Flat
+ButtonStyle All -- UseTitleStyle
+AddButtonStyle All Vector 2 1x2@4 1x1@4
+
+AddButtonStyle 1 \
+	ActiveUp (Pixmap $[icons]/close.svg -- Flat) \
+	ActiveDown (Pixmap $[icons]/close.png -- Flat) \
+	Inactive (Pixmap $[icons]/close.png -- Flat)
+
+#AddButtonStyle 2 \
+#	ActiveUp (Pixmap $[icons]/maximize.svg -- Flat) \
+#	ActiveDown (Pixmap $[icons]/maximize.png -- Flat) \
+#	Inactive (Pixmap $[icons]/maximize.png -- Flat)
+
+#AddButtonStyle 4 \
+#	ActiveUp (Pixmap $[icons]/iconify.png -- Flat) \
+#	ActiveDown (Pixmap $[icons]/iconify.png -- Flat) \
+#	Inactive (Pixmap $[icons]/iconify.png -- Flat)
+
+ AddButtonStyle 6 \
+	ActiveUp (Pixmap $[icons]/min.svg -- Flat) \
+	ActiveDown (Pixmap $[icons]/min.svg -- Flat) \
+  Inactive (Pixmap $[icons]/min.svg -- Flat)
+
+                         
+##     ___  ___ ____ ____ ____
+##    / _ \/ _ `/ _ `/ -_) __/
+##   / .__/\_,_/\_, /\__/_/   
+##  /_/        /___/          
+##
+
+
+## Minimize to Thumbnail Placeholder
+Style * IconBox 400x768+12+12, IconGrid 15 15, \
+IconFill center, !IconTitle, IconBackgroundRelief 0
